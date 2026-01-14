@@ -1,25 +1,26 @@
 const mongoose = require("mongoose");
 
-/**
- * Connects the application to MongoDB Atlas
- * Uses async/await for better error handling
- * This file is imported once in server.js
- */
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+let cached = global.mongoose;
 
-    console.log(
-      `MongoDB Connected Successfully: ${conn.connection.host}`
-    );
-  } catch (error) {
-    console.error("MongoDB connection failed:");
-    console.error(error.message);
-    process.exit(1); // Stop server if DB fails
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+const connectDB = async () => {
+  if (cached.conn) return cached.conn;
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is not set");
   }
+
+  if (!cached.promise) {
+    cached.promise = mongoose
+      .connect(process.env.MONGO_URI)
+      .then((mongooseInstance) => mongooseInstance);
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 };
 
 module.exports = connectDB;

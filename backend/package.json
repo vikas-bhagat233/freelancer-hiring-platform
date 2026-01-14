@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "npm --prefix ..\\frontend run build",
+    "preview": "npm --prefix ..\\frontend run preview"
   },
   "author": "Your Name",
   "license": "MIT",
