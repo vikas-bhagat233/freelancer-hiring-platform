@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import React from "react";
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
