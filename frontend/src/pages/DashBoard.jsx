@@ -10,21 +10,25 @@ const Dashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
       try {
+        setError("");
         if (user.role === "client") {
           const res = await api.get("/jobs/my");
-          setJobs(res.data.jobs);
+          setJobs(Array.isArray(res?.data?.jobs) ? res.data.jobs : []);
         } else {
           const res = await api.get("/jobs");
-          setJobs(res.data.jobs);
+          setJobs(Array.isArray(res?.data?.jobs) ? res.data.jobs : []);
         }
       } catch (error) {
-        console.error("Dashboard fetch error");
+        console.error("Dashboard fetch error", error);
+        setJobs([]);
+        setError("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -52,6 +56,8 @@ const Dashboard = () => {
 
       {loading ? (
         <p>Loading data...</p>
+      ) : error ? (
+        <p>{error}</p>
       ) : jobs.length === 0 ? (
         <p>No jobs available</p>
       ) : (
